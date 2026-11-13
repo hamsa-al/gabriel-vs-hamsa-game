@@ -1,0 +1,277 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Fight</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#171414;color:#f6e9dc;font-family:system-ui,-apple-system,sans-serif;overflow:hidden}main{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;max-width:none;margin:0;padding:0;display:block;overflow:hidden}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px}h1{font-size:clamp(19px,5vw,29px);margin:0;letter-spacing:-.04em}.sub{font-size:10px;color:#b8aaa1;letter-spacing:.16em;font-weight:800}.tag{font-size:10px;letter-spacing:.12em;border:1px solid #68443b;color:#ffcf78;padding:7px 9px;border-radius:99px}
+.hud{position:absolute;z-index:10;top:0;left:0;right:0;display:grid;grid-template-columns:64px minmax(0,1fr) 30px minmax(0,1fr) 64px;align-items:center;gap:10px;padding:8px 16px 10px;background:linear-gradient(180deg,rgba(10,10,17,.88),rgba(10,10,17,.60) 72%,rgba(10,10,17,0));pointer-events:none}.hud-portrait{position:relative;width:62px;height:64px;overflow:hidden;background:#18141b;border:2px solid #d3ad68;clip-path:polygon(0 0,86% 0,100% 16%,100% 100%,14% 100%,0 84%);filter:drop-shadow(0 3px 5px #000c)}.hud-face{position:absolute;top:0;left:50%;width:470%;height:auto;max-width:none;transform:translateX(-50%)}.hud-face.hamsa{top:-2px;width:360%;left:72%}.hud-life .label{font-size:11px;text-shadow:0 1px 3px #000}.track{display:flex;border:1px solid #d4c5a0;background:linear-gradient(#421e27,#24151d);box-shadow:0 2px 6px #0009}.track.enemy{justify-content:flex-end}.fill{background:linear-gradient(180deg,#a4f079,#3ed253 55%,#168a35)}.vs{text-shadow:0 2px 5px #000}.label{font-size:10px;font-weight:900;letter-spacing:.1em}.track{height:10px;background:#4b2928;border-radius:6px;overflow:hidden;margin-top:5px}.fill{height:100%;width:100%;background:#ed4949;transition:width .2s}.vs{text-align:center;color:#ffcf78;font-weight:1000}
+.arena{position:absolute;inset:0;min-height:0;overflow:hidden;border:0;border-radius:0;background:linear-gradient(180deg,rgba(8,8,12,.18),rgba(8,8,12,.10)),url('assets/underground-fightclub-background.png') center/cover no-repeat}.neon{position:absolute;top:7%;left:0;right:0;text-align:center;font-size:clamp(20px,6vw,40px);font-weight:1000;letter-spacing:.18em;color:#ffcf7825}.floor{position:absolute;bottom:0;height:34%;width:100%;pointer-events:none}
+.fighter{position:absolute;left:3%;bottom:10%;height:70%;width:48%;z-index:3;object-fit:contain;filter:drop-shadow(0 10px 6px #0008);transform-origin:55% 85%}.fighter.attack{animation:gabrielJabMove .42s ease-out}.fighter.kicking{left:3%;width:48%;height:70%;animation:gabrielKickMove .5s ease-out}@keyframes gabrielJabMove{0%{transform:translateX(0) rotate(0)}30%{transform:translateX(14%) rotate(-2deg)}58%{transform:translateX(24%) rotate(0)}100%{transform:translateX(0) rotate(0)}}@keyframes gabrielKickMove{0%{transform:translateX(0) rotate(0)}35%{transform:translateX(0) rotate(-1deg)}62%{transform:translateX(2.5%) rotate(0)}100%{transform:translateX(0) rotate(0)}}
+.block-btn{border-color:#496fa4;background:linear-gradient(#253d59,#172435)}.opponent{position:absolute;right:3%;bottom:10%;height:70%;width:48%;z-index:2;object-fit:contain;object-position:bottom;filter:drop-shadow(0 10px 6px #0008);transform-origin:60% 85%}.opponent.recoil{animation:recoil .25s ease-out}@keyframes recoil{35%{transform:translateX(1%) rotate(3deg)}100%{transform:translateX(0) rotate(0)}}
+.fighter-select{display:flex;align-items:center;justify-content:center;gap:7px;padding:3px 0 2px;color:#9d8f87;font-size:10px;letter-spacing:.12em;font-weight:900}.select-label{margin-right:2px}.fighter-choice{border:1px solid #4a3934;background:linear-gradient(#28201f,#181313);border-radius:999px;padding:7px 13px;color:#b8aaa1;font-size:10px;font-weight:900;letter-spacing:.08em;box-shadow:0 2px #080707;touch-action:manipulation}.fighter-choice.active{color:#ffcf78;border-color:#95644c;background:linear-gradient(#49312a,#251918);box-shadow:inset 0 1px #ffffff22,0 2px #080707}.fighter-choice:focus-visible{outline:2px solid #ffcf78;outline-offset:2px}
+.opponent{position:absolute;right:3%;bottom:10%;height:70%;width:48%;z-index:2;object-fit:contain;object-position:bottom;filter:drop-shadow(0 10px 6px #0008);transform-origin:60% 85%}
+.opponent.hamsa-jab{animation:hamsaJabMove .38s ease-out}.opponent.hamsa-kick{animation:hamsaKickMove .58s ease-out}.opponent.hamsa-blocking{animation:hamsaBlockMove .28s ease-out}
+@keyframes hamsaJabMove{0%{transform:translateX(0)}28%{transform:translateX(-12%) rotate(-1deg)}58%{transform:translateX(-20%)}100%{transform:translateX(0)}}
+@keyframes hamsaKickMove{0%{transform:translateX(0) rotate(0)}25%{transform:translateX(-15%) rotate(-1deg)}60%{transform:translateX(-36.5%) rotate(0)}100%{transform:translateX(0) rotate(0)}}
+@keyframes hamsaBlockMove{0%{transform:translateX(0) scale(1)}28%{transform:translateX(-2%) scale(.985)}100%{transform:translateX(0) scale(1)}}
+.fighter.recoil{animation:gabrielRecoil .24s ease-out}@keyframes gabrielRecoil{35%{transform:translateX(-1%) rotate(-3deg)}100%{transform:translateX(0) rotate(0)}}
+.impact{position:absolute;top:38%;left:55%;font-size:clamp(25px,7vw,45px);font-weight:1000;color:#ffcf78;text-shadow:3px 3px #d63232;opacity:0;pointer-events:none}.impact.show{animation:impact .45s ease-out}@keyframes impact{20%{opacity:1;transform:scale(1.2) rotate(-8deg)}100%{opacity:0;transform:scale(1.5) rotate(8deg)}}
+.status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);display:flex;align-items:center;gap:12px;background:#24201f;border:1px solid #42312d;border-radius:12px;padding:10px 12px}.message{flex:1;font-size:12px;color:#ffcf78;font-weight:800}.counter{text-align:right;white-space:nowrap}.counter strong{font-size:22px;color:#ffcf78}.counter small{display:block;font-size:9px;color:#b8aaa1;letter-spacing:.12em}
+
+.movement-controls{display:flex;justify-content:center;gap:12px;margin:2px auto 4px;width:100%;max-width:420px}.move-btn{touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;flex:1;padding:10px 12px;border:1px solid #654a3d;border-radius:12px;background:linear-gradient(#342421,#1b1514);color:#f3e5d5;box-shadow:inset 0 1px #ffffff16,0 4px #090808;font-size:10px;font-weight:900;letter-spacing:.08em;transition:transform .06s,box-shadow .06s}.move-btn:active,.move-btn.is-moving{transform:translateY(3px);box-shadow:inset 0 2px 5px #0009,0 1px #090808;border-color:#c68e57}.move-arrow{font-size:20px;line-height:1;color:#f3c38b;text-shadow:0 2px #000}.move-btn kbd{display:inline-grid;place-items:center;min-width:21px;height:22px;padding:0 4px;border:1px solid #725e54;border-radius:5px;background:#100d0d;color:#e5d2bd;font-size:10px;box-shadow:0 2px #070606;font-family:inherit}.move-btn:focus-visible{outline:2px solid #ffcf78;outline-offset:2px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}
+button{touch-action:manipulation;cursor:pointer;font:inherit;color:#f6e9dc}
+.arcade-control{--arc:#ef2937;--deep:#8f0a18;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;width:100%;padding:2px 3px 8px;border:0;background:transparent;border-radius:16px;font-weight:900;letter-spacing:.08em}
+.arcade-control.jab{--arc:#f32632;--deep:#8f0713}
+.arcade-control.kick{--arc:#249fe1;--deep:#07538e}
+.arcade-control.block{--arc:#f19326;--deep:#8e4108}
+.arcade-orb{position:relative;display:grid;place-items:center;width:clamp(70px,15vw,104px);aspect-ratio:1;border-radius:50%;isolation:isolate;
+ background:radial-gradient(ellipse at 33% 18%,#fff9 0 4%,#ffffff20 17%,transparent 33%),linear-gradient(145deg,color-mix(in srgb,var(--arc) 72%,white),var(--arc) 42%,var(--deep) 100%);
+ border:2px solid color-mix(in srgb,var(--arc) 70%,#fff 30%);
+ box-shadow:inset 0 3px 3px #fff9,inset 0 -7px 9px #0007,0 7px 0 #09090c,0 10px 16px #0008;
+ transition:transform .08s ease,filter .08s ease,box-shadow .08s ease}
+.arcade-orb:before{content:"";position:absolute;inset:13%;border-radius:50%;z-index:-1;
+ background:radial-gradient(ellipse at 34% 20%,#ffffff85 0 3%,#ffffff2b 19%,transparent 38%),linear-gradient(155deg,color-mix(in srgb,var(--arc) 75%,white),var(--arc) 48%,color-mix(in srgb,var(--deep) 80%,black));
+ border:2px solid color-mix(in srgb,var(--arc) 55%,#fff 45%);
+ box-shadow:inset 0 2px 3px #fff6,inset 0 -3px 6px #0006,0 0 0 2px #0004}
+.arcade-orb:after{content:"";position:absolute;top:13%;left:25%;width:48%;height:15%;border-radius:50%;background:linear-gradient(#ffffffb8,#ffffff08);filter:blur(.4px);pointer-events:none}
+.arcade-icon{font-size:clamp(24px,5vw,34px);line-height:1;filter:drop-shadow(0 2px 1px #0008);text-shadow:0 1px 0 #fff8;transform:translateY(-1px)}
+.arcade-control:active .arcade-orb{transform:translateY(5px) scale(.97);filter:brightness(1.12);box-shadow:inset 0 3px 7px #0005,0 2px 0 #09090c,0 3px 8px #0008}
+.arcade-control:focus-visible{outline:2px solid #ffe5a1;outline-offset:3px}
+.keyboard-guide{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px 16px;padding:8px 10px;border:1px solid #42312d;border-radius:12px;background:#24201f;color:#e5d2bd;font-size:11px;font-weight:800}.keyboard-guide span{display:flex;align-items:center;gap:4px}.keyboard-guide kbd{display:inline-grid;place-items:center;min-width:23px;height:23px;padding:0 5px;border:1px solid #725e54;border-radius:5px;background:#100d0d;color:#ffcf78;font:700 11px system-ui;box-shadow:0 2px #070606}.keyboard-guide small{color:#b8aaa1;font-size:10px}.game-utility-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.reset{border:1px solid #59413b;background:transparent;border-radius:99px;padding:10px 14px;font-size:11px;font-weight:800}
+.note{font-size:11px;line-height:1.4;color:#b8aaa1}
+.reset{border:1px solid #59413b;background:transparent;border-radius:99px;padding:10px 14px;font-size:11px;font-weight:800}.note{font-size:11px;line-height:1.4;color:#b8aaa1}@media(max-width:420px){main{padding:0;gap:0}.arena{min-height:0}.hud{grid-template-columns:50px minmax(0,1fr) 22px minmax(0,1fr) 50px;gap:6px;padding:6px 7px 8px}.hud-portrait{width:49px;height:54px}.hud-life .label{font-size:9px}.track{height:8px}.arena{min-height:0;height:100%}.fighter{left:2%;width:46%;height:68%}.fighter.kicking{left:2%;width:46%;height:68%}@keyframes gabrielKickMove{0%{transform:translateX(0) rotate(0)}35%{transform:translateX(0) rotate(-1deg)}62%{transform:translateX(4%) rotate(0)}100%{transform:translateX(0) rotate(0)}}.opponent{position:absolute;right:3%;width:46%;height:68%}@keyframes gabrielJabMove{0%{transform:translateX(0) rotate(0)}30%{transform:translateX(13%) rotate(-2deg)}58%{transform:translateX(19%) rotate(0)}100%{transform:translateX(0) rotate(0)}}@keyframes hamsaJabMove{0%{transform:translateX(0)}28%{transform:translateX(-11%) rotate(-1deg)}58%{transform:translateX(-18%)}100%{transform:translateX(0)}}@keyframes hamsaKickMove{0%{transform:translateX(0) rotate(0)}25%{transform:translateX(-11%) rotate(-1deg)}60%{transform:translateX(-35%) rotate(0)}100%{transform:translateX(0) rotate(0)}}.movement-controls{gap:8px;margin:0 auto 3px}.move-btn{padding:10px 7px;gap:6px;font-size:9px}.move-arrow{font-size:18px}.move-btn kbd{min-width:20px;height:21px}.controls{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.arcade-orb{width:clamp(64px,18vw,82px)}.arcade-control{gap:7px}.arcade-control small{font-size:8px}}
+
+/* Touch actions stay inside the arena and appear only on touch-first or narrow screens. */
+.touch-controls{display:none;position:absolute;z-index:8;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));align-items:flex-end;justify-content:space-between;padding:0 16px;pointer-events:none;touch-action:none;user-select:none;-webkit-user-select:none}
+.touch-pad,.touch-actions{display:flex;align-items:center;gap:10px;pointer-events:auto}
+.touch-control{display:grid;place-items:center;width:clamp(50px,13vw,66px);height:clamp(50px,13vw,66px);border:1px solid #e5bd7d;border-radius:50%;background:linear-gradient(145deg,#3c302cdd,#131216ed);color:#fff2df;font-size:24px;font-weight:1000;box-shadow:inset 0 1px #ffffff35,0 4px 0 #090809,0 8px 18px #0009;touch-action:none;-webkit-tap-highlight-color:transparent}
+.touch-control:active,.touch-control.is-pressed{transform:translateY(3px);box-shadow:inset 0 2px 5px #0009,0 1px 0 #090809}
+.touch-actions{gap:8px}.touch-actions .touch-control{width:clamp(48px,12vw,62px);height:clamp(48px,12vw,62px);font-size:11px;letter-spacing:.04em}.touch-actions [data-touch-attack="kick"]{border-color:#75c8f0;background:linear-gradient(145deg,#205478ed,#101923ed)}.touch-actions [data-touch-attack="block"]{border-color:#e8a94f;background:linear-gradient(145deg,#75461eed,#201710ed)}
+@media(max-width:800px),(pointer:coarse){.touch-controls{display:flex}.fighter,.opponent{height:62%;bottom:17%}.fighter{width:45%}.fighter.kicking{height:62%;width:45%}.opponent{width:45%}}
+@media(max-height:500px) and (orientation:landscape){.touch-controls{display:flex;bottom:calc(5px + env(safe-area-inset-bottom));padding:0 12px}.touch-control{width:48px;height:48px}.touch-actions .touch-control{width:46px;height:46px}.fighter,.opponent{height:58%;bottom:14%}.fighter.kicking{height:58%}}
+@media(orientation:portrait) and (pointer:coarse){
+  body{position:absolute;top:0;left:100vw;width:100dvh;height:100vw;transform:rotate(90deg);transform-origin:top left;overflow:hidden}
+  main,.start-screen{width:100%;height:100%;min-height:0}
+}
+
+.hidden{display:none!important}
+.start-screen{position:fixed;inset:0;min-height:100vh;min-height:100dvh;padding:24px 12px;display:grid;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 13%,#60352b 0%,#251b19 42%,#100e0e 78%);color:#f6e9dc}
+.start-inner{width:min(100%,760px);margin:auto;display:grid;justify-items:center;gap:12px}
+.start-eyebrow{font-size:10px;font-weight:900;letter-spacing:.22em;color:#dfb58e;text-align:center}
+.start-title{margin:0;text-align:center;font-size:clamp(26px,7vw,48px);letter-spacing:-.055em;line-height:1.05;text-shadow:0 3px 0 #080707}
+.start-title span{color:#ffcf78;font-size:.62em;letter-spacing:.12em;margin:0 .18em;vertical-align:middle}
+.start-copy{margin:0 0 5px;color:#c8b7ab;font-size:14px;text-align:center}
+.character-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;margin-top:5px}
+.character-card{min-width:0;display:flex;flex-direction:column;align-items:center;gap:0;padding:0 0 14px;overflow:hidden;border:1px solid #63483d;border-radius:16px;background:linear-gradient(180deg,#30211e,#151111 90%);color:#f6e9dc;box-shadow:0 7px 0 #090707,0 16px 30px #0006;transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease;touch-action:manipulation}
+.character-card:hover{transform:translateY(-3px);border-color:#d29b68;box-shadow:0 10px 0 #090707,0 19px 30px #0008}
+.character-card:active{transform:translateY(3px);box-shadow:0 3px 0 #090707,0 8px 15px #0006}
+.character-card:focus-visible{outline:3px solid #ffcf78;outline-offset:4px}
+.character-art{width:100%;height:clamp(225px,43vh,390px);display:flex;align-items:flex-end;justify-content:center;padding:9px 7px 0;background:radial-gradient(ellipse at 50% 62%,#68402f55,transparent 60%)}
+.character-art img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 8px #0008)}
+.character-card-title{margin-top:10px;font-size:clamp(16px,3.8vw,22px);font-weight:1000;letter-spacing:.08em}
+.character-card-subtitle{margin-top:4px;color:#b8a398;font-size:9px;font-weight:900;letter-spacing:.15em}
+.start-hint{margin:4px 0 0;color:#81685b;font-size:10px;font-weight:900;letter-spacing:.2em;text-align:center}
+.online-panel{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:min(100%,540px);padding:10px;border:1px solid #63483d;border-radius:12px;background:#171211aa}.online-panel label{grid-column:1/-1;color:#d5b995;font-size:9px;font-weight:900;letter-spacing:.13em}.online-panel input,.online-panel select,.online-panel button{min-width:0;border:1px solid #72584a;border-radius:8px;padding:9px;background:#181313;color:#f6e9dc;font:700 11px system-ui}.online-panel button{background:linear-gradient(#49312a,#251918);color:#ffcf78;cursor:pointer}.online-panel button:active{transform:translateY(1px)}.online-panel .wide{grid-column:1/-1}.online-note{grid-column:1/-1;margin:0;color:#b8aaa1;font-size:10px;line-height:1.4}.online-note.error{color:#ff9b8c}
+@media(max-width:420px){.start-screen{padding:18px 9px}.start-inner{gap:10px}.start-copy{font-size:12px}.character-grid{gap:8px}.character-card{border-radius:12px;padding-bottom:12px}.character-art{height:clamp(210px,38vh,300px);padding:6px 3px 0}.character-card-title{font-size:15px}.character-card-subtitle{font-size:8px;letter-spacing:.1em}}
+
+</style></head><body>
+<section id="startScreen" class="start-screen" aria-label="Choose your fighter">
+  <div class="start-inner">
+    <div class="start-eyebrow">PLAYER SELECT · ARCADE MODE</div>
+    
+    <p class="start-copy">Choose your fighter to start the match.</p>
+    <div class="character-grid">
+      <button type="button" class="character-card" data-start-fighter="gabriel" aria-label="Start game as Gabriel">
+        <span class="character-art"><img alt="Gabriel" src="assets/gabriel-master.png" /></span>
+        <span class="character-card-title">GABRIEL</span>
+        <span class="character-card-subtitle">PLAYER 01 · SELECT</span>
+      </button>
+      <button type="button" class="character-card" data-start-fighter="hamsa" aria-label="Start game as Hamsa">
+        <span class="character-art"><img alt="Hamsa" src="assets/hamsa-master.png" /></span>
+        <span class="character-card-title">HAMSA</span>
+        <span class="character-card-subtitle">PLAYER 02 · SELECT</span>
+      </button>
+    </div>
+    <p class="start-hint">JAB · KICK · BLOCK</p>
+    <div class="online-panel" aria-label="Online play setup">
+      <label for="onlineWorkerUrl">ONLINE MATCH · SELECT YOUR FIGHTER AND CONNECT</label>
+      <select id="onlineFighter" aria-label="Choose your online fighter"><option value="gabriel">Play as Gabriel</option><option value="hamsa">Play as Hamsa</option></select>
+      <input id="onlineWorkerUrl" type="url" inputmode="url" placeholder="https://your-worker.workers.dev" aria-label="Cloudflare Worker URL">
+      <button id="createRoom" type="button">Create room</button><input id="roomCode" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="ROOM CODE" aria-label="Room code"><button id="joinRoom" type="button">Join room</button>
+      <button id="cancelOnline" class="wide hidden" type="button">Cancel connection</button>
+      <p id="onlineStatus" class="online-note wide" aria-live="polite">Add your Worker URL after deployment. Share the room code with your opponent.</p>
+    </div>
+  </div>
+</section>
+<main id="gameMain" class="hidden">
+<section class="hud" aria-label="Fighter life bars"><div class="hud-portrait"><img class="hud-face gabriel" src="assets/gabriel-master.png" alt="Gabriel face"></div><div class="hud-life"><div class="label">GABRIEL</div><div class="track"><div id="playerFill" class="fill" style="width:100%"></div></div></div><div class="vs" aria-hidden="true">VS</div><div class="hud-life"><div class="label" style="text-align:right">HAMSA</div><div class="track enemy"><div id="enemyFill" class="fill" style="width:100%"></div></div></div><div class="hud-portrait"><img class="hud-face hamsa" src="assets/hamsa-master.png" alt="Hamsa face"></div></section>
+<section class="arena"><div class="floor"></div><img id="gabriel" class="fighter" alt="Gabriel, aligned full-body sprites" src="assets/gabriel-master.png"><img id="hamsa" class="opponent" alt="Hamsa facing Gabriel" src="assets/hamsa-master.png"><div id="impact" class="impact">POW!</div><div class="touch-controls" aria-label="Touch game controls"><div class="touch-pad" aria-label="Movement"><button class="touch-control" type="button" data-touch-side="left" aria-label="Move left">←</button><button class="touch-control" type="button" data-touch-side="right" aria-label="Move right">→</button></div><div class="touch-actions" aria-label="Attacks"><button class="touch-control" type="button" data-touch-attack="jab" aria-label="Jab">JAB</button><button class="touch-control" type="button" data-touch-attack="kick" aria-label="Kick">KICK</button><button class="touch-control" type="button" data-touch-attack="block" aria-label="Block">BLOCK</button></div></div></section>
+<section class="status"><div id="message" class="message">Tap an attack to start.</div><div class="counter"><strong id="combo">0</strong><small>HIT COMBO</small></div></section>
+</main><script>
+const g=document.getElementById('gabriel'), h=document.getElementById('hamsa'), impact=document.getElementById('impact'), playerFill=document.getElementById('playerFill'), enemyFill=document.getElementById('enemyFill'), comboEl=document.getElementById('combo'), msg=document.getElementById('message');
+const fighters={
+  gabriel:{el:g,idle:'assets/gabriel-master.png',jab:'assets/gabriel-punch.png',kick:'assets/gabriel-kick.png',blockPrep:'assets/gabriel-block-prep.png',block:'assets/gabriel-block.png',walkForward:'assets/gabriel-walk-forward.png',walkBackward:'assets/gabriel-walk-backward.png',pain:'assets/gabriel-pain-reaction.png',recoil:'assets/gabriel-hit-recoil.png'},
+  hamsa:{el:h,idle:'assets/hamsa-master.png',jab:'assets/hamsa-jab.png',kick:'assets/hamsa-kick.png',blockPrep:'assets/hamsa-block-prep.png',block:'assets/hamsa-block.png',walkForward:'assets/hamsa-walk-forward.png',walkBackward:'assets/hamsa-walk-backward.png',pain:'assets/hamsa-pain-reaction.png',recoil:'assets/hamsa-hit-recoil.png'}
+};
+let gabrielHealth=100, hamsaHealth=100, combo=0, busy=false, timer, recoveryTimer, activeFighter='gabriel';
+let gabrielInset=window.matchMedia('(max-width:420px)').matches?2:3, hamsaInset=3;
+const movementStates={gabriel:{interval:null,direction:null,source:null},hamsa:{interval:null,direction:null,source:null}};
+let onlineMode=null;
+const arenaElement=document.querySelector('.arena');
+function applyFighterPositions(){g.style.left=gabrielInset+'%';h.style.right=hamsaInset+'%'}
+function resetFighterPositions(){gabrielInset=window.matchMedia('(max-width:420px)').matches?2:3;hamsaInset=3;applyFighterPositions()}
+function sendOnline(message){if(onlineMode?.ready&&onlineMode.socket?.readyState===WebSocket.OPEN)onlineMode.socket.send(JSON.stringify(message))}
+function stopMovement(source,fighterName=activeFighter){
+  const state=movementStates[fighterName];if(source&&state.source!==source)return;
+  const wasMoving=Boolean(state.direction),localInput=state.source==='keyboard'||state.source==='touch';
+  if(state.interval!==null){clearInterval(state.interval);state.interval=null}state.direction=null;state.source=null;
+  if(wasMoving&&localInput&&fighterName===activeFighter)sendOnline({type:'moveStop'});
+  if(!busy)fighters[fighterName].el.src=fighters[fighterName].idle;
+}
+function stopAllMovement(){stopMovement(undefined,'gabriel');stopMovement(undefined,'hamsa')}
+function nudgeFighter(direction,amount,fighterName=activeFighter){
+  if(busy||document.getElementById('gameMain').classList.contains('hidden'))return;
+  if(fighterName==='gabriel'){
+    gabrielInset=direction==='forward'?Math.min(38,gabrielInset+amount):Math.max(-8,gabrielInset-amount);
+  }else{
+    hamsaInset=direction==='forward'?Math.min(38,hamsaInset+amount):Math.max(-8,hamsaInset-amount);
+  }
+  applyFighterPositions();
+}
+function startMovement(direction,source,fighterName=activeFighter){
+  if(busy||document.getElementById('gameMain').classList.contains('hidden'))return;
+  const state=movementStates[fighterName];if(state.direction===direction&&state.source===source)return;
+  stopMovement(undefined,fighterName);
+  state.direction=direction;state.source=source;fighters[fighterName].el.src=fighters[fighterName][direction==='forward'?'walkForward':'walkBackward'];
+  if(fighterName===activeFighter&&source!=='remote')sendOnline({type:'moveStart',direction});
+  nudgeFighter(direction,0.9,fighterName);
+  state.interval=setInterval(()=>{if(busy||!state.direction){stopMovement(undefined,fighterName);return}nudgeFighter(state.direction,0.62,fighterName)},35);
+}
+
+const moves={jab:{damage:5,label:'JAB!',word:'POW!'},kick:{damage:10,label:'KICK!',word:'WHAM!'}};
+function showImpact(word){impact.textContent=word;impact.classList.remove('show');void impact.offsetWidth;impact.classList.add('show')}
+function setFighter(name,force=false){if(busy||(onlineMode?.ready&&!force))return;stopMovement();activeFighter=name;g.style.zIndex=name==='gabriel'?'4':'2';h.style.zIndex=name==='hamsa'?'4':'2';msg.textContent=(name==='gabriel'?'Gabriel':'Hamsa')+' selected. Use J for jab, K for kick, and L to block.'}
+function attack(type,fromNetwork=false,remoteHit=null){
+  if(busy)return;
+  stopMovement();
+  const player=fighters[activeFighter], enemy=fighters[activeFighter==='gabriel'?'hamsa':'gabriel'];
+  const enemyIsGabriel=activeFighter==='hamsa';
+  if(type==='block'){
+    if(!fromNetwork)sendOnline({type:'attack',move:type});
+    busy=true;player.el.src=player.blockPrep;
+    msg.textContent=(activeFighter==='gabriel'?'GABRIEL':'HAMSA')+' BLOCKS!';showImpact('BLOCK!');
+    timer=setTimeout(()=>{player.el.src=player.block;timer=setTimeout(()=>{player.el.src=player.idle;busy=false},330)},90);return;
+  }
+  const playerBounds=player.el.getBoundingClientRect(), enemyBounds=enemy.el.getBoundingClientRect();
+  const centerDistance=Math.abs((playerBounds.left+playerBounds.width/2)-(enemyBounds.left+enemyBounds.width/2));
+  const hit=remoteHit===null?centerDistance<=arenaElement.clientWidth*0.18:remoteHit;
+  if(!fromNetwork)sendOnline({type:'attack',move:type,hit});
+  if(!hit){msg.textContent='OUT OF RANGE — MOVE CLOSER TO LAND THE HIT.';showImpact('MISS!');return}
+  const enemyHealth=enemyIsGabriel?gabrielHealth:hamsaHealth;
+  if(enemyHealth<=0)return;
+  busy=true;const m=moves[type];
+  if(enemyIsGabriel){gabrielHealth=Math.max(0,gabrielHealth-m.damage);playerFill.style.width=gabrielHealth+'%'}
+  else{hamsaHealth=Math.max(0,hamsaHealth-m.damage);enemyFill.style.width=hamsaHealth+'%'}
+  combo++;comboEl.textContent=combo;
+  const remaining=enemyIsGabriel?gabrielHealth:hamsaHealth;
+  msg.textContent=remaining===0?'K.O.! '+(activeFighter==='gabriel'?'Gabriel':'Hamsa')+' wins!':(activeFighter==='gabriel'?'GABRIEL':'HAMSA')+' '+m.label+' — '+m.damage+' damage.';
+  showImpact(remaining===0?'K.O.!':m.word);
+  player.el.src=player[type];enemy.el.src=enemy.recoil;
+  player.el.classList.remove('attack','kicking','hamsa-jab','hamsa-kick');enemy.el.classList.remove('recoil');
+  void player.el.offsetWidth;void enemy.el.offsetWidth;
+  player.el.classList.add(activeFighter==='gabriel'?(type==='kick'?'kicking':'attack'):(type==='kick'?'hamsa-kick':'hamsa-jab'));
+  enemy.el.classList.add('recoil');
+  timer=setTimeout(()=>{enemy.el.src=enemy.pain},150);
+  recoveryTimer=setTimeout(()=>{player.el.src=player.idle;enemy.el.src=enemy.idle;player.el.classList.remove('attack','kicking','hamsa-jab','hamsa-kick');enemy.el.classList.remove('recoil');busy=false},type==='kick'?680:510);
+}
+function resetFight(){
+  clearTimeout(timer);clearTimeout(recoveryTimer);stopAllMovement();resetFighterPositions();busy=false;
+  gabrielHealth=100;hamsaHealth=100;combo=0;playerFill.style.width='100%';enemyFill.style.width='100%';comboEl.textContent='0';
+  g.src=fighters.gabriel.idle;g.style.visibility='visible';g.classList.remove('attack','kicking','recoil');
+  h.src=fighters.hamsa.idle;h.classList.remove('recoil','hamsa-jab','hamsa-kick','hamsa-blocking');impact.classList.remove('show');
+  msg.textContent='Fight reset. J jab · K kick · L block.';
+}
+function returnToSelect(){
+  if(busy)return;
+  if(onlineMode?.socket?.readyState===WebSocket.OPEN)onlineMode.socket.close();onlineMode=null;document.getElementById('cancelOnline').classList.add('hidden');
+  resetFight();document.getElementById('gameMain').classList.add('hidden');document.getElementById('startScreen').classList.remove('hidden');
+}
+function movementDirectionForKey(key){
+  const towardOpponent=key==='d'||key==='arrowright';
+  if(activeFighter==='gabriel')return towardOpponent?'forward':'backward';
+  return towardOpponent?'backward':'forward';
+}
+function movementDirectionForScreen(side){
+  const movesRight=side==='right';
+  const towardOpponent=(activeFighter==='gabriel')===movesRight;
+  return towardOpponent?'forward':'backward';
+}
+document.querySelectorAll('[data-touch-side]').forEach(button=>{
+  const begin=event=>{event.preventDefault();button.classList.add('is-pressed');try{button.setPointerCapture(event.pointerId)}catch{}startMovement(movementDirectionForScreen(button.dataset.touchSide),'touch')};
+  const end=event=>{event.preventDefault();button.classList.remove('is-pressed');stopMovement('touch')};
+  button.addEventListener('pointerdown',begin);button.addEventListener('pointerup',end);button.addEventListener('pointercancel',end);button.addEventListener('lostpointercapture',end);
+});
+document.querySelectorAll('[data-touch-attack]').forEach(button=>button.addEventListener('click',()=>attack(button.dataset.touchAttack)));
+const onlineStatus=document.getElementById('onlineStatus'), onlineWorkerUrl=document.getElementById('onlineWorkerUrl'), roomCodeInput=document.getElementById('roomCode'), cancelOnline=document.getElementById('cancelOnline');
+try{onlineWorkerUrl.value=localStorage.getItem('gabriel-vs-hamsa-worker')||''}catch{}
+function setOnlineStatus(message,isError=false){onlineStatus.textContent=message;onlineStatus.classList.toggle('error',isError)}
+function startOnlineConnection(createRoom){
+  if(onlineMode?.socket?.readyState===WebSocket.OPEN){setOnlineStatus('You are already connected to a room.',true);return}
+  const workerText=onlineWorkerUrl.value.trim().replace(/\/$/,'');
+  let worker;
+  try{worker=new URL(workerText);if(!['http:','https:'].includes(worker.protocol))throw new Error()}catch{setOnlineStatus('Paste the Worker address from your Cloudflare deployment first.',true);return}
+  try{localStorage.setItem('gabriel-vs-hamsa-worker',workerText)}catch{}
+  let code=roomCodeInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(createRoom){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',bytes=crypto.getRandomValues(new Uint8Array(6));code=Array.from(bytes,value=>chars[value%chars.length]).join('');roomCodeInput.value=code}
+  if(code.length<4){setOnlineStatus('Enter the room code from the other player.',true);return}
+  worker.protocol=worker.protocol==='https:'?'wss:':'ws:';worker.pathname='/room/'+encodeURIComponent(code);worker.search='';worker.hash='';
+  setOnlineStatus(createRoom?'Creating room '+code+'…':'Joining room '+code+'…');
+  const socket=new WebSocket(worker.toString());onlineMode={socket,room:code,ready:false,you:null,opponent:null};cancelOnline.classList.remove('hidden');
+  socket.addEventListener('open',()=>socket.send(JSON.stringify({type:'join',fighter:document.getElementById('onlineFighter').value})));
+  socket.addEventListener('message',event=>{
+    let message;try{message=JSON.parse(event.data)}catch{return}
+    if(message.type==='error'){setOnlineStatus(message.message,true);onlineMode.ready=false;socket.close();return}
+    if(message.type==='waiting'){setOnlineStatus('Room '+code+' is ready. Share the code with your opponent.');return}
+    if(message.type==='ready'){
+      onlineMode.ready=true;onlineMode.you=message.you;onlineMode.opponent=message.opponent;
+      cancelOnline.classList.add('hidden');
+      setOnlineStatus('Connected to room '+code+' · You are '+message.you+'.');
+      startGame(message.you);return;
+    }
+    if(message.type==='peer-left'){onlineMode.ready=false;stopAllMovement();msg.textContent='Opponent disconnected. Return to fighter select to start another room.';setOnlineStatus('Your opponent disconnected. Create or join a room to play again.',true);onlineMode=null;cancelOnline.classList.add('hidden');socket.close();return}
+    if(!onlineMode.ready||message.from!==onlineMode.opponent)return;
+    if(message.type==='moveStart'){startMovement(message.direction,'remote',message.from);return}
+    if(message.type==='moveStop'){stopMovement('remote',message.from);return}
+    if(message.type==='attack'){
+      const previous=activeFighter;activeFighter=message.from;
+      try{attack(message.move,true,typeof message.hit==='boolean'?message.hit:null)}finally{activeFighter=previous}
+    }
+  });
+  socket.addEventListener('error',()=>setOnlineStatus('Could not connect. Check the Worker URL and try again.',true));
+  socket.addEventListener('close',event=>{if(onlineMode?.socket!==socket)return;if(event.code!==1000&&!onlineMode?.ready)setOnlineStatus(event.reason||'Connection closed. Check the room code and Worker URL.',true);onlineMode=null;cancelOnline.classList.add('hidden')});
+}
+document.getElementById('createRoom').addEventListener('click',()=>startOnlineConnection(true));
+document.getElementById('joinRoom').addEventListener('click',()=>startOnlineConnection(false));
+cancelOnline.addEventListener('click',()=>{if(onlineMode?.socket?.readyState===WebSocket.OPEN)onlineMode.socket.close();onlineMode=null;cancelOnline.classList.add('hidden');setOnlineStatus('Connection cancelled.')});
+document.addEventListener('keydown',event=>{
+  const key=event.key.toLowerCase();
+  if(event.target&&(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.target.isContentEditable))return;
+  const inGame=!document.getElementById('gameMain').classList.contains('hidden');
+  if(inGame&&key==='r'&&!onlineMode?.ready){event.preventDefault();resetFight();return}
+  if(inGame&&key==='escape'){event.preventDefault();returnToSelect();return}
+  if(inGame&&(key==='1'||key==='2')&&!onlineMode?.ready){event.preventDefault();if(!event.repeat)setFighter(key==='1'?'gabriel':'hamsa');return}
+  const attackKey={j:'jab',k:'kick',l:'block'}[key];
+  if(attackKey){event.preventDefault();if(!event.repeat)attack(attackKey);return}
+  if(!['a','d','arrowleft','arrowright'].includes(key))return;
+  event.preventDefault();
+  if(event.repeat&&movementStates[activeFighter].source==='keyboard')return;
+  startMovement(movementDirectionForKey(key),'keyboard');
+});
+document.addEventListener('keyup',event=>{
+  const key=event.key.toLowerCase();
+  if(['a','d','arrowleft','arrowright'].includes(key)&&movementStates[activeFighter].direction===movementDirectionForKey(key))stopMovement('keyboard');
+});
+window.addEventListener('blur',()=>stopAllMovement());
+function startGame(name){setFighter(name,Boolean(onlineMode?.ready));document.getElementById('startScreen').classList.add('hidden');document.getElementById('gameMain').classList.remove('hidden');msg.textContent=(name==='gabriel'?'Gabriel':'Hamsa')+' selected. Use J for jab, K for kick, and L to block.'}
+document.querySelectorAll('[data-start-fighter]').forEach(b=>b.addEventListener('click',()=>{if(onlineMode?.socket?.readyState===WebSocket.OPEN){setOnlineStatus('Finish or close your online connection before starting a local match.',true);return}onlineMode=null;startGame(b.dataset.startFighter)}));
+document.addEventListener('keydown',event=>{if(document.getElementById('startScreen').classList.contains('hidden')||onlineMode)return;if(event.target&&(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.target.isContentEditable))return;if(event.key==='1'||event.key==='2'){event.preventDefault();if(!event.repeat)startGame(event.key==='1'?'gabriel':'hamsa')}});
+
+</script></body></html>
